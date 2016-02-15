@@ -11,7 +11,6 @@
 #'
 #'        \itemize{
 #'          \item{lib/}
-#'          \item{R/}
 #'          \item{../lib/}
 #'          \item{../R/}
 #'        }
@@ -32,6 +31,7 @@
 #' @author Rick Wargo, \email{lrequire@rickwargo.com}
 #'
 #' @examples
+#' \dontrun{
 #' ## Given: myfile.R -- example
 #' this = list(
 #'   ten=      10,
@@ -45,13 +45,12 @@
 #' ## End of myfile.R
 #'
 #' ## Any one of the file methods can be used to load myfile.R:
-#' # vals <- lrequire(myfile)
+#' vals <- lrequire(myfile)
 #' # vals <- lrequire(myfile.R)
 #' # vals <- lrequire('myfile')
 #' # vals <- lrequire('myfile.R')
 #'
 #' ## To use vals, access the individual element that is returned through module.exports.
-#' \dontrun{
 #' print(paste("The square of 8 is ", vals$square(8)))
 #' }
 #'
@@ -72,11 +71,10 @@ lrequire <- function(file) {
     # directory, then file.R in current directory. If neither exist, check file file in the remaining paths, followed
     # by file.R in those paths.
     #   lib
-    #   R
     #   ../lib
     #   ../R
 
-    paths <- c('lib', 'R', '../lib', '../R')
+    paths <- c('lib', '../lib', '../R')
     files <- file.path('.', c(file, paste(file, 'R', sep='.')))
     files <- append(files, file.path(paths, file))
     files <- append(files, file.path(paths, paste(file, 'R', sep='.')))

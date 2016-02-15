@@ -13,7 +13,6 @@ lrequire(file)
 
        \itemize{
          \item{lib/}
-         \item{R/}
          \item{../lib/}
          \item{../R/}
        }
@@ -39,6 +38,7 @@ The specific values are exposed by setting named list elements to the desired va
 in \code{nodule.exports} should have named items so they can easily be accessed in the calling environment.
 }
 \examples{
+\dontrun{
 ## Given: myfile.R -- example
 this = list(
   ten=      10,
@@ -52,13 +52,12 @@ module.exports = this
 ## End of myfile.R
 
 ## Any one of the file methods can be used to load myfile.R:
-# vals <- lrequire(myfile)
+vals <- lrequire(myfile)
 # vals <- lrequire(myfile.R)
 # vals <- lrequire('myfile')
 # vals <- lrequire('myfile.R')
 
 ## To use vals, access the individual element that is returned through module.exports.
-\dontrun{
 print(paste("The square of 8 is ", vals$square(8)))
 }
 
