@@ -1,0 +1,15 @@
+Package: lrequire
+Type: Package
+Title: Sources an R File, Exporting Specific Variables
+Version: 0.7
+Date: 2016-02-14
+Author:  Rick Wargo <lrequire@rickwargo.com>
+Maintainer: Rick Wargo <lrequire@rickwargo.com>
+Description: In the fashion of 'node.js' <https://nodejs.org/>, requires a file,
+  sourcing into the current environment only the variables explicitly specified
+  in the module.exports or exports list variable.
+License: MIT + file LICENSE
+URL: https://github.com/rickwargo/lrequire
+BugReports: https://github.com/rickwargo/lrequire/issues
+LazyData: TRUE
+RoxygenNote: 5.0.1
