@@ -42,13 +42,13 @@ vals <- lrequire(sample)
 print(paste("The square of 8 is ", vals$square(8)))
 ```
 
-Upon `lrequire`-ing `sample.R`, only the `this` list will be exposed and assigned to the variable 
+Upon lrequire-ing `sample.R`, only the `this` list will be exposed and assigned to the variable 
 `vals`. It will have the following assignments:
 
- - vals$ten
- - vals$me
- - vals$square
- - vals$power
+ - `vals$ten`
+ - `vals$me`
+ - `vals$square`
+ - `vals$power`
  
 Note that `vals$ten` and `vals$me` are simple variables while both `vals$square` and `vals$power`
 are functions.
