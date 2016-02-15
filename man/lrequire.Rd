@@ -2,12 +2,12 @@
 % Please edit documentation in R/lrequire.R
 \name{lrequire}
 \alias{lrequire}
-\title{Requires an R file, exporting specific variables as a list.}
+\title{Sources an R file with optional caching for subsequent attempts, exporting specified values.}
 \usage{
-lrequire(file)
+lrequire(file, do.caching = TRUE)
 }
 \arguments{
-\item{file}{a string (or expression) that specifies a file to load, with or without an optional .R extension. If
+\item{file}{A string (or expression) that specifies a file to load, with or without an optional .R extension. If
        the file does not exist in the current directory, it searches for the file in the following
        directories, first seaching all directories for the named file, then the file with a .R extension.
 
@@ -18,10 +18,15 @@ lrequire(file)
        }
 
        All variables exposed in the file will be hidden in the calling environment, except for
-       what is exposed through the module.exports or exports list variable.}
+       what is exposed through module.exports or the exports list variable.}
+
+\item{do.caching}{A boolean, defaulted to TRUE, that can be set to false to disable caching behavior for
+the file. If the file has already been loaded and cached, setting \code{do.cache} to FALSE will re-source the
+file. Setting it again to TRUE will re-source the file if the previous state was FALSE.}
 }
 \value{
-Any values that exist in the \emph{list} \code{module.exports} or \code{exports}.
+Any values that exist in \code{module.exports} or, if that does not exist, then the
+        \emph{list} \code{exports}.
 
         If no file is found, \code{NA} is returned.
 }
@@ -29,13 +34,26 @@ Any values that exist in the \emph{list} \code{module.exports} or \code{exports}
 \code{lrequire} looks in the current path, and then through a list of predefined paths
 to search for the given file to source into the current environment, but only making visible
 specific variables that are "exported" as a list, in a fashion similar
-to \href{https://node.js/}{node.js}.
+to \href{https://nodejs.org/}{node.js}. The caching behaviour can be either suspended or it can
+re-source files that have changed since the last time the file was cached.
 }
 \details{
-\code{lrequire} operates in a similar principle to modules in node.js - keeping any variables created in
-the source file isolated from the calling environment, while exposing a select set of values/parameters.
-The specific values are exposed by setting named list elements to the desired value. Note this list exposed
-in \code{nodule.exports} should have named items so they can easily be accessed in the calling environment.
+\code{lrequire} operates in a similar principle to modules in \href{https://nodejs.org/}{node.js} - keeping
+any variables created in the source file isolated from the calling environment, while exposing a select set
+of values/parameters. The specific values are exposed by setting a named list element in the \code{exports} variable
+to the desired value or by assigning \code{module.exports} a value.
+
+Note this list exposed in \code{nodule.exports} should have named items so they can easily be accessed in
+the calling environment, however that is not necessary if only a single value is being returned.
+
+If values are assigned to both \code{module.exports} and \code{exports}, only the values in \code{module.exports}
+will be exposed to the caller.
+
+Caching a long-running operation, such as static data retrieval from a database is a good use of the
+caching capability of \code{lrequire} during development when the same file is sourced multiple times.
+
+During development, files can be reloaded, even if being cached if they have been modified after the time they
+were cached. To enable this behaviour, set the variable \code{module.change_code} to 1.
 }
 \examples{
 \dontrun{
@@ -48,12 +66,16 @@ this = list(
 
 this$power <- function(x, y) { return (x^y) }
 
-module.exports = this
+# Note that setting module.change_code to 1 will enable any changes to this file to be reloaded the
+# next time the file is lrequire'd (instead of the cached value being returned).
+
+module.change_code <- 1
+module.exports <- this
 ## End of myfile.R
 
 ## Any one of the file methods can be used to load myfile.R:
 vals <- lrequire(myfile)
-# vals <- lrequire(myfile.R)
+# vals <- lrequire(myfile.R, do.caching=FALSE)
 # vals <- lrequire('myfile')
 # vals <- lrequire('myfile.R')
 
