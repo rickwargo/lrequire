@@ -19,3 +19,7 @@ Both module.exports and exports are defined as global variables, but really loca
 source file being lrequire'd. The function of lrequire is to take the variables specified 
 by the module.exports (or exports) list and make them, and only them, visible to the caller.
 This behavior operates as intended.
+
+## Downstream dependencies
+
+To the best of my knowledge there are none
