@@ -59,7 +59,7 @@
 #' @author Rick Wargo, \email{lrequire@rickwargo.com}
 #'
 #' @examples
-#' say.hello.to <- lrequire('../lrequire/R/tests/example-hello')
+#' say.hello.to <- lrequire('../lrequire/tests/example-hello')
 #' say.hello.to('Rick')
 #'
 #' @export

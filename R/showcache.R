@@ -8,8 +8,7 @@
 #'
 #' @examples
 #' show.module.cache()
+#' show.module.cache(all.names = TRUE)
 show.module.cache <- function(all.names = FALSE) {
-    for (v in ls(module.cache, all.names = all.names)) {
-    print(paste('Env:', v, '<-', module.cache[[v]]))
-  }
+  ls.str(module.cache, all.names = all.names)
 }

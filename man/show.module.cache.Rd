@@ -18,5 +18,6 @@ Prints the current file cache
 }
 \examples{
 show.module.cache()
+show.module.cache(all.names = TRUE)
 }
 

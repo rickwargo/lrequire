@@ -2,6 +2,11 @@
 # No testing harness so as to not require additional packages
 # These tests may test more than a single piece of functionality
 
+library(lrequire)
+
+# actual tests are located in tests sub directory
+append.module.paths('tests', 0)
+
 tst1 <- lrequire(test1)
 tst2.sum <- lrequire(test2)
 tst3 <- lrequire(test3)
@@ -57,10 +62,10 @@ if (tst3$sum(1, 2) != 3) {
 }
 
 # test4 -- tests module.change_code, caching, and simplifying lrequire arguments to ensure they point to the same file
-source('test4.R')
+source('tests/test4.R')
 
 # test5 -- tests module.cache and associated functions
-source('test5.R')
+source('tests/test5.R')
 
 # test6 -- tests modules.path and associated functions
-source('test6.R')
+source('tests/test6.R')

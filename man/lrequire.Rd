@@ -66,7 +66,7 @@ To quickly clear lrequire's package environment, unload the package. In RStudio,
 The next call to \code{library(lrequire)} will ensure it starts off with a clean slate.
 }
 \examples{
-say.hello.to <- lrequire('../lrequire/R/tests/example-hello')
+say.hello.to <- lrequire('../lrequire/tests/example-hello')
 say.hello.to('Rick')
 
 }

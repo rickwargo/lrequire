@@ -1,8 +1,8 @@
 Package: lrequire
 Type: Package
-Title: Sources an R File with Caching, Exporting Specified Variables
-Version: 0.1
-Date: 2016-02-14
+Title: Sources and Encapsulates an R "Module" with Caching, Exposing Only Specified Variables
+Version: 0.1.1
+Date: 2016-02-19
 Author:  Rick Wargo <lrequire@rickwargo.com>
 Maintainer: Rick Wargo <lrequire@rickwargo.com>
 Description: In the fashion of 'node.js' <https://nodejs.org/>, requires a file,
