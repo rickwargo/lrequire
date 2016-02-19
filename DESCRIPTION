@@ -1,7 +1,7 @@
 Package: lrequire
 Type: Package
 Title: Sources and Encapsulates an R "Module" with Caching, Exposing Only Specified Variables
-Version: 0.1.1
+Version: 0.1.2.9000
 Date: 2016-02-19
 Author:  Rick Wargo <lrequire@rickwargo.com>
 Maintainer: Rick Wargo <lrequire@rickwargo.com>

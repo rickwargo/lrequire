@@ -1,2 +1,8 @@
+Version 0.1.2.9000
+- Prepare for new development
+
+Version 0.1.2
+- Unreleased to CRAN, moved test directory to same level as R
+
 Version 0.1.1
 - CRAN release (Initial)
