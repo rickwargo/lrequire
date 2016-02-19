@@ -2,27 +2,30 @@
 % Please edit documentation in R/lrequire.R
 \name{lrequire}
 \alias{lrequire}
-\title{Sources an R file with optional caching for subsequent attempts, exporting specified values.}
+\title{Sources an R file with optional caching for subsequent attempts, exporting specified values}
 \usage{
-lrequire(file, do.caching = TRUE)
+lrequire(file, force.reload = FALSE)
 }
 \arguments{
-\item{file}{A string (or expression) that specifies a file to load, with or without an optional .R extension. If
-       the file does not exist in the current directory, it searches for the file in the following
-       directories, first seaching all directories for the named file, then the file with a .R extension.
+\item{file}{a string (or expression) that specifies a file to load, with or without an optional .R extension. If
+       the file does not exist in the current directory, it searches for the file in directories listed in
+       \code{module.paths}, first seaching all directories for the named file,
+       then the file with a .R extension.
 
        \itemize{
-         \item{lib/}
+         \item{./R_modules/}
+         \item{./lib/}
+         \item{../R_modules/}
          \item{../lib/}
-         \item{../R/}
+         \item{~/.R_modules}
        }
 
        All variables exposed in the file will be hidden in the calling environment, except for
        what is exposed through module.exports or the exports list variable.}
 
-\item{do.caching}{A boolean, defaulted to TRUE, that can be set to false to disable caching behavior for
-the file. If the file has already been loaded and cached, setting \code{do.cache} to FALSE will re-source the
-file. Setting it again to TRUE will re-source the file if the previous state was FALSE.}
+\item{force.reload}{a logical value, defaulted to FALSE, that can be set to TRUE to disable caching behavior for
+the file. If the file has already been loaded and cached, setting \code{force.reload} to TRUE will re-source the
+file. Setting it again to FALSE will re-source the file if the previous state was TRUE.}
 }
 \value{
 Any values that exist in \code{module.exports} or, if that does not exist, then the
@@ -43,7 +46,7 @@ any variables created in the source file isolated from the calling environment, 
 of values/parameters. The specific values are exposed by setting a named list element in the \code{exports} variable
 to the desired value or by assigning \code{module.exports} a value.
 
-Note this list exposed in \code{nodule.exports} should have named items so they can easily be accessed in
+Note this list exposed in \code{module.exports} should have named items so they can easily be accessed in
 the calling environment, however that is not necessary if only a single value is being returned.
 
 If values are assigned to both \code{module.exports} and \code{exports}, only the values in \code{module.exports}
@@ -52,36 +55,19 @@ will be exposed to the caller.
 Caching a long-running operation, such as static data retrieval from a database is a good use of the
 caching capability of \code{lrequire} during development when the same file is sourced multiple times.
 
-During development, files can be reloaded, even if being cached if they have been modified after the time they
+During development, files can be reloaded, even if being cached, if they have been modified after the time they
 were cached. To enable this behaviour, set the variable \code{module.change_code} to 1.
+
+To quickly clear lrequire's package environment, unload the package. In RStudio, this can be done by unchecking
+\code{lrequire} on the Packages tab. You can also execute the following at the R prompt:
+\code{
+    detach("package:lrequire", unload=TRUE)
+    }
+The next call to \code{library(lrequire)} will ensure it starts off with a clean slate.
 }
 \examples{
-\dontrun{
-## Given: myfile.R -- example
-this = list(
-  ten=      10,
-  me=       "Rick",
-  square=   function(x) { return (x*x) }
-)
-
-this$power <- function(x, y) { return (x^y) }
-
-# Note that setting module.change_code to 1 will enable any changes to this file to be reloaded the
-# next time the file is lrequire'd (instead of the cached value being returned).
-
-module.change_code <- 1
-module.exports <- this
-## End of myfile.R
-
-## Any one of the file methods can be used to load myfile.R:
-vals <- lrequire(myfile)
-# vals <- lrequire(myfile.R, do.caching=FALSE)
-# vals <- lrequire('myfile')
-# vals <- lrequire('myfile.R')
-
-## To use vals, access the individual element that is returned through module.exports.
-print(paste("The square of 8 is ", vals$square(8)))
-}
+say.hello.to <- lrequire('../lrequire/R/tests/example-hello')
+say.hello.to('Rick')
 
 }
 \author{

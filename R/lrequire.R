@@ -1,4 +1,4 @@
-#' Sources an R file with optional caching for subsequent attempts, exporting specified values.
+#' Sources an R file with optional caching for subsequent attempts, exporting specified values
 #'
 #' \code{lrequire} looks in the current path, and then through a list of predefined paths
 #' to search for the given file to source into the current environment, but only making visible
@@ -6,22 +6,25 @@
 #' to \href{https://nodejs.org/}{node.js}. The caching behaviour can be either suspended or it can
 #' re-source files that have changed since the last time the file was cached.
 #'
-#' @param file A string (or expression) that specifies a file to load, with or without an optional .R extension. If
-#'        the file does not exist in the current directory, it searches for the file in the following
-#'        directories, first seaching all directories for the named file, then the file with a .R extension.
+#' @param file a string (or expression) that specifies a file to load, with or without an optional .R extension. If
+#'        the file does not exist in the current directory, it searches for the file in directories listed in
+#'        \code{module.paths}, first seaching all directories for the named file,
+#'        then the file with a .R extension.
 #'
 #'        \itemize{
-#'          \item{lib/}
+#'          \item{./R_modules/}
+#'          \item{./lib/}
+#'          \item{../R_modules/}
 #'          \item{../lib/}
-#'          \item{../R/}
+#'          \item{~/.R_modules}
 #'        }
 #'
 #'        All variables exposed in the file will be hidden in the calling environment, except for
 #'        what is exposed through module.exports or the exports list variable.
 #'
-#' @param do.caching A boolean, defaulted to TRUE, that can be set to false to disable caching behavior for
-#' the file. If the file has already been loaded and cached, setting \code{do.cache} to FALSE will re-source the
-#' file. Setting it again to TRUE will re-source the file if the previous state was FALSE.
+#' @param force.reload a logical value, defaulted to FALSE, that can be set to TRUE to disable caching behavior for
+#' the file. If the file has already been loaded and cached, setting \code{force.reload} to TRUE will re-source the
+#' file. Setting it again to FALSE will re-source the file if the previous state was TRUE.
 #'
 #' @details
 #' \code{lrequire} operates in a similar principle to modules in \href{https://nodejs.org/}{node.js} - keeping
@@ -29,7 +32,7 @@
 #' of values/parameters. The specific values are exposed by setting a named list element in the \code{exports} variable
 #' to the desired value or by assigning \code{module.exports} a value.
 #'
-#' Note this list exposed in \code{nodule.exports} should have named items so they can easily be accessed in
+#' Note this list exposed in \code{module.exports} should have named items so they can easily be accessed in
 #' the calling environment, however that is not necessary if only a single value is being returned.
 #'
 #' If values are assigned to both \code{module.exports} and \code{exports}, only the values in \code{module.exports}
@@ -38,8 +41,15 @@
 #' Caching a long-running operation, such as static data retrieval from a database is a good use of the
 #' caching capability of \code{lrequire} during development when the same file is sourced multiple times.
 #'
-#' During development, files can be reloaded, even if being cached if they have been modified after the time they
+#' During development, files can be reloaded, even if being cached, if they have been modified after the time they
 #' were cached. To enable this behaviour, set the variable \code{module.change_code} to 1.
+#'
+#' To quickly clear lrequire's package environment, unload the package. In RStudio, this can be done by unchecking
+#' \code{lrequire} on the Packages tab. You can also execute the following at the R prompt:
+#' \code{
+#'     detach("package:lrequire", unload=TRUE)
+#'     }
+#' The next call to \code{library(lrequire)} will ensure it starts off with a clean slate.
 #'
 #' @return Any values that exist in \code{module.exports} or, if that does not exist, then the
 #'         \emph{list} \code{exports}.
@@ -49,64 +59,16 @@
 #' @author Rick Wargo, \email{lrequire@rickwargo.com}
 #'
 #' @examples
-#' \dontrun{
-#' ## Given: myfile.R -- example
-#' this = list(
-#'   ten=      10,
-#'   me=       "Rick",
-#'   square=   function(x) { return (x*x) }
-#' )
-#'
-#' this$power <- function(x, y) { return (x^y) }
-#'
-#' # Note that setting module.change_code to 1 will enable any changes to this file to be reloaded the
-#' # next time the file is lrequire'd (instead of the cached value being returned).
-#'
-#' module.change_code <- 1
-#' module.exports <- this
-#' ## End of myfile.R
-#'
-#' ## Any one of the file methods can be used to load myfile.R:
-#' vals <- lrequire(myfile)
-#' # vals <- lrequire(myfile.R, do.caching=FALSE)
-#' # vals <- lrequire('myfile')
-#' # vals <- lrequire('myfile.R')
-#'
-#' ## To use vals, access the individual element that is returned through module.exports.
-#' print(paste("The square of 8 is ", vals$square(8)))
-#' }
+#' say.hello.to <- lrequire('../lrequire/R/tests/example-hello')
+#' say.hello.to('Rick')
 #'
 #' @export
-lrequire <- function(file, do.caching=TRUE) {
+lrequire <- function(file, force.reload = FALSE) {
   # allow file to be specified without quotes
-  file <- as.character(substitute(file))
-
-  file.readable <- function(file) {
-    # returns if the file is readable and is not a directory
-
-    return (file.access(file, mode=4) == 0 && !file.info(file)$isdir)
-  }
-
-  find.first.R <- function(file) {
-    # Check if file exists in the following directories (in the specified order). First check for file in current
-    # directory, then file.R in current directory. If neither exist, check file file in the remaining paths, followed
-    # by file.R in those paths.
-    #   lib
-    #   ../lib
-    #   ../R
-
-    paths <- c('lib', '../lib', '../R')
-    files <- file.path('.', c(file, paste(file, 'R', sep='.')))
-    files <- append(files, file.path(paths, file))
-    files <- append(files, file.path(paths, paste(file, 'R', sep='.')))
-
-    for (filepath in files) {
-      if (file.readable(filepath)) {
-        return (filepath)
-      }
-    }
-    warning('No file named ', file, ' or ', file, '.R in: ', paste(c('.', paths), collapse='/, '), '/.')
-    return(NA)
+  if (length(substitute(file)) > 1) { # an expression was passed, just evaluate it
+    file <- as.character(file)
+  } else {
+    file <- as.character(substitute(file))
   }
 
   # Look for file or file.R in paths and source locally, exposing list associated with module.exports or exports
@@ -114,45 +76,54 @@ lrequire <- function(file, do.caching=TRUE) {
   #
   # TODO: Keep an internal list of dependencies and if a file changes that is dynamically reloaded, reload all dependencies
   # TODO: Check if module.change_code is set and if so, have a dynamic watcher to reload the file if it changes
+  # TODO: Have a pre-defined list of paths to search for R modules
+  # TODO: allow same filename to be cached multiple ways!!! (maybe cache on getpath)
 
-  (function(file, do.caching) {
+  (function(file, force.reload) {
     filename <- find.first.R(file)
     if (!is.na(filename)) {
       mtime = file.info(filename)$mtime
       filename.mtime <- paste0(filename, '.mtime')
 
-      # If filename.mtime does not exist in environment, then change_code is not set and we will not re-source
-      # If filename.mtime does exist, only return cached value if current mod time is <= stored mode time
-      if (do.caching && exists(filename, envir=file.cache) &&
-          (!exists(filename.mtime, envir=file.cache) || (mtime <= get(filename.mtime, envir=file.cache)))) {
-        return(get(filename, envir=file.cache))
+      if (exists('.:module.change_code', envir=module.cache)) {
+        module.change_code <- get('.:module.change_code', envir=module.cache)
       } else {
-        # Otherwise, we are not caching or we are caching and have not seen the file yet
-        # Or, we are caching and the file has been updated since it has been cached
-        source(filename, local = TRUE)
+        module.change_code <- 0
+      }
 
-        change.code <- do.caching && exists('module.change_code') && (module.change_code == 1)
-        if (change.code) {
-          # If we are caching and checking mod times, we want to save the mod time for later checks
-          assign(filename.mtime, mtime, envir=file.cache)
-        } else if (exists(filename.mtime, envir=file.cache)) {
-          # Otherwise we are not caching or we won't refresh newly saved files
-          remove(list=c(filename, filename.mtime), envir=file.cache)
+      if (exists(filename.mtime, envir=module.cache) && (module.change_code > 0)) {
+        # if change_code is set and the modification time has changed, force the reload
+        if (get(filename.mtime, envir=module.cache) != mtime) {
+          force.reload <- TRUE
+        }
+      }
+
+      if (force.reload || !exists(filename, envir=module.cache)) {
+        # forcing a reload of the file has never been read
+        source(filename, local = TRUE)
+        if (exists('module.change_code')) {
+          assign('.:module.change_code', module.change_code, envir=module.cache)
+        } else {
+          module.change_code <- 0
         }
 
+        # Get the value of module.exports or exports and save to later return to the caller
         return.val <- NULL
         if (exists('module.exports') && !is.null(module.exports)) {
           return.val <- module.exports
         } else if (exists('exports') && !is.null(exports)) {
           return.val <- exports
         }
-        if (do.caching) {
-          # We are caching so save the result of this source
-          assign(filename, return.val, envir=file.cache)
-        }
+
+        # Anytime we load a file, we want to save the file and mod time for later checks
+        assign(filename, return.val, envir=module.cache)
+        assign(filename.mtime, mtime, envir=module.cache)
+
         return(return.val)
+      } else {
+        return(get(filename, envir=module.cache))
       }
     }
     return(NA)
-  })(file, do.caching)
+  })(file, force.reload)
 }
