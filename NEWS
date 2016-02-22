@@ -1,8 +1,11 @@
-Version 0.1.2.9000
-- Prepare for new development
+Version 0.1.3
+- Official CRAN release
+- add ability to manually deal with not found modules
+- use test framework testthat
+- better support for unquoted lrequire arguments, support character.only parameter as used by require
 
 Version 0.1.2
 - Unreleased to CRAN, moved test directory to same level as R
 
 Version 0.1.1
-- CRAN release (Initial)
+- Initial CRAN release (Initial)
