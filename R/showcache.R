@@ -10,5 +10,8 @@
 #' show.module.cache()
 #' show.module.cache(all.names = TRUE)
 show.module.cache <- function(all.names = FALSE) {
-  ls.str(module.cache, all.names = all.names)
+  cat("--- module cache ---\n")
+  for (v in ls(module.cache, all.names = all.names)) {
+    print(paste0(v, ': ', module.cache[[v]]), quote=FALSE)
+  }
 }

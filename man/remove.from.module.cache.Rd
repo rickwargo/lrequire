@@ -4,12 +4,15 @@
 \alias{remove.from.module.cache}
 \title{Removes module from cache, applying same logic as \code{\link{find.first.R}} to find and remove it}
 \usage{
-remove.from.module.cache(file)
+remove.from.module.cache(module, character.only = FALSE)
 }
 \arguments{
-\item{file}{name of a file, same as the one used in the \code{\link{lrequire}} method, that will be removed
-from the cache, such that the next time the \code{file} is \code{\link{lrequire}}'d, it will be
+\item{module}{name of a module, same as the one used in the \code{\link{lrequire}} method, that will be removed
+from the cache, such that the next time the \code{module} is \code{\link{lrequire}}'d, it will be
 read and executed.}
+
+\item{character.only}{a logical value, defaulted to FALSE, that permits an unquoted name to be \code{lrequire}-d.
+Set this to TRUE when passing a variable to \code{lrequire}, requiring a quoted string.}
 }
 \value{
 boolean value yielding success of removal from the cache

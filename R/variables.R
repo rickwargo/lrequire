@@ -4,9 +4,12 @@
 module.cache <- new.env()
 
 # define a list of paths to check for lrequire'd files
+paths <- c('./R_modules', './lib', '../R_modules', '../lib', gsub('\\\\', '/', path.expand('~/.R_modules')))
 assign('.:module.paths',
-       c('./R_modules', './lib', '../R_modules', '../lib', path.expand('~/.R_modules')),
+       paths,
        envir = module.cache)
+
+assign('.:warn.not.found', TRUE, envir = module.cache)
 
 # exports is an empty list that can be used to deliver values back to the calling environment
 exports <- list()
@@ -16,3 +19,6 @@ module.exports <- NULL
 
 # set module.change_code to 1 to force a reload of the file next time it is lrequire-d
 module.change_code <- 0
+assign('.:module.change_code',
+       module.change_code,
+       envir = module.cache)

@@ -2,15 +2,16 @@
 % Please edit documentation in R/lrequire.R
 \name{lrequire}
 \alias{lrequire}
-\title{Sources an R file with optional caching for subsequent attempts, exporting specified values}
+\title{Sources an R module with optional caching for subsequent attempts, exporting specified values}
 \usage{
-lrequire(file, force.reload = FALSE)
+lrequire(module, force.reload = FALSE, character.only = FALSE,
+  warn.not.found = TRUE)
 }
 \arguments{
-\item{file}{a string (or expression) that specifies a file to load, with or without an optional .R extension. If
-       the file does not exist in the current directory, it searches for the file in directories listed in
-       \code{module.paths}, first seaching all directories for the named file,
-       then the file with a .R extension.
+\item{module}{a string (or expression) that specifies a module to load, with or without an optional .R extension. If
+       the module does not exist in the current directory, it searches for the module in directories listed in
+       \code{module.paths}, first seaching all directories for the named module,
+       then the module with a .R extension.
 
        \itemize{
          \item{./R_modules/}
@@ -20,29 +21,36 @@ lrequire(file, force.reload = FALSE)
          \item{~/.R_modules}
        }
 
-       All variables exposed in the file will be hidden in the calling environment, except for
+       All variables exposed in the module will be hidden in the calling environment, except for
        what is exposed through module.exports or the exports list variable.}
 
 \item{force.reload}{a logical value, defaulted to FALSE, that can be set to TRUE to disable caching behavior for
-the file. If the file has already been loaded and cached, setting \code{force.reload} to TRUE will re-source the
-file. Setting it again to FALSE will re-source the file if the previous state was TRUE.}
+the module. If the module has already been loaded and cached, setting \code{force.reload} to
+TRUE will re-source the module. Setting it again to FALSE will re-source the module if the
+previous state was TRUE.}
+
+\item{character.only}{a logical value, defaulted to FALSE, that permits an unquoted name to be \code{lrequire}-d.
+Set this to TRUE when passing a variable to \code{lrequire}, requiring a quoted string.}
+
+\item{warn.not.found}{a logical value, defaulted to TRUE, can be set to not display warning messages when
+module is not found.}
 }
 \value{
 Any values that exist in \code{module.exports} or, if that does not exist, then the
         \emph{list} \code{exports}.
 
-        If no file is found, \code{NA} is returned.
+        If no module is found, \code{NA} is returned.
 }
 \description{
 \code{lrequire} looks in the current path, and then through a list of predefined paths
-to search for the given file to source into the current environment, but only making visible
+to search for the given module to source into the current environment, but only making visible
 specific variables that are "exported" as a list, in a fashion similar
 to \href{https://nodejs.org/}{node.js}. The caching behaviour can be either suspended or it can
-re-source files that have changed since the last time the file was cached.
+re-source files that have changed since the last time the module was cached.
 }
 \details{
 \code{lrequire} operates in a similar principle to modules in \href{https://nodejs.org/}{node.js} - keeping
-any variables created in the source file isolated from the calling environment, while exposing a select set
+any variables created in the source module isolated from the calling environment, while exposing a select set
 of values/parameters. The specific values are exposed by setting a named list element in the \code{exports} variable
 to the desired value or by assigning \code{module.exports} a value.
 
@@ -53,7 +61,7 @@ If values are assigned to both \code{module.exports} and \code{exports}, only th
 will be exposed to the caller.
 
 Caching a long-running operation, such as static data retrieval from a database is a good use of the
-caching capability of \code{lrequire} during development when the same file is sourced multiple times.
+caching capability of \code{lrequire} during development when the same module is sourced multiple times.
 
 During development, files can be reloaded, even if being cached, if they have been modified after the time they
 were cached. To enable this behaviour, set the variable \code{module.change_code} to 1.
@@ -66,8 +74,14 @@ To quickly clear lrequire's package environment, unload the package. In RStudio,
 The next call to \code{library(lrequire)} will ensure it starts off with a clean slate.
 }
 \examples{
-say.hello.to <- lrequire('../lrequire/tests/example-hello')
-say.hello.to('Rick')
+hide.not.found.warnings()  # don't warn on files not found by lrequire()
+
+# If the module name is in a character vector, use:
+my.module <- 'myplot'
+mm <- lrequire(my.module, character.only = TRUE)
+
+say.hello.to <- lrequire(hello_ex)
+# say.hello.to('Rick')  # use the say.hello.to() function that was returned by lrequire()
 
 }
 \author{

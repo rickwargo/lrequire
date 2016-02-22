@@ -2,24 +2,32 @@
 % Please edit documentation in R/findfirst.R
 \name{find.first.R}
 \alias{find.first.R}
-\title{Returns the path of the first found instance of \code{file} in \code{module.path}.}
+\title{Returns the path of the first found instance of \code{module} in \code{module.path}.}
 \usage{
-find.first.R(file)
+find.first.R(module, character.only = FALSE, warn.not.found = TRUE)
 }
 \arguments{
-\item{file}{a string (or symbol) specifying the \code{file} to search for existance and readability in the current directory,
+\item{module}{a string (or symbol) specifying the \code{module} to search for existance and readability in the current directory,
 and if it cannot be found, searches for it in the list of directories specified by \code{module.paths}
-and then through the set of paths with the file using a .R extension, if it was not originally
+and then through the set of paths with the module using a .R extension, if it was not originally
 specified.}
+
+\item{character.only}{a logical value, defaulted to FALSE, that permits an unquoted name to be \code{lrequire}-d.
+Set this to TRUE when passing a variable to \code{lrequire}, requiring a quoted string.}
+
+\item{warn.not.found}{a logical value, defaulted to TRUE, can be set to not display warning messages when
+module is not found.}
 }
 \value{
-A string consisting of the path the file was first found searching through module.paths.
+A string consisting of the path the module was first found searching through module.paths.
 }
 \description{
 A symbol maybe passed instead of a string for readability. If an expression is passed, it must return a string value.
 }
 \examples{
-# Returns the path to the first found file according to module.paths
-adder.path <- find.first.R('adder')
+hide.not.found.warnings()  # don't warn on files not foudn by find.first.R()
+
+# Returns the path to the first found module according to module.paths
+hello_ex.path <- find.first.R(hello_ex)
 }
 
